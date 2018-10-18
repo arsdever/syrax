@@ -1,0 +1,1 @@
+#include "../core/manipulators.h"

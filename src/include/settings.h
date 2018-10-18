@@ -1,0 +1,1 @@
+#include "../widgets/settings.h"
