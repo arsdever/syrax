@@ -6,6 +6,7 @@
 #include <interfaces.h>
 #include <bpmanager.h>
 #include "plain_editor_global.h"
+#include "decor_breakpoint.h"
 
 class QPaintEvent;
 class QMouseEvent;
@@ -19,7 +20,7 @@ class PLAIN_EDITOR_EXPORT CBreakpointArea :	public QWidget
 	REGISTER_INTERFACE_END(Breakpoint)
 
 public:
-	CBreakpointArea(QPlainTextEdit* pParent);
+	CBreakpointArea(CBreakpointDecoration* pParent);
 
 	QSize sizeHint();
 	inline QList<ui32> GetBreakpointList() const { return m_aBreakpoints; }

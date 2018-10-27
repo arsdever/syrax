@@ -23,6 +23,7 @@ public:
 	void ToggleBreakpoints(Range<ui32> rLines);
 	void SetBreakpoints(Range<ui32> rLines);
 	void RemoveBreakpoints(Range<ui32> rLines);
+	QList<ui32> GetBreakpointList() const;
 	bool IsSet(ui32 nLine);
 
 	void Notify();

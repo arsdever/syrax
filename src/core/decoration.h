@@ -1,5 +1,7 @@
 #pragma once
 
+#include <QWidget>
+
 template <typename WIDGET_BASE>
 class IDecoration : public WIDGET_BASE
 {

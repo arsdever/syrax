@@ -4,10 +4,9 @@
 #include "../plugin/pluginmgr_base.h"
 #include <core.h>
 
-CBreakpointArea::CBreakpointArea(QPlainTextEdit* pParent)
+CBreakpointArea::CBreakpointArea(CBreakpointDecoration* pParent)
 	: QWidget(pParent)
 {
-	m_pEditor = pParent;
 	m_pBPManager = GetCore()->GetManager<CBreakpointManager>();
 	m_pBPManager->RegisterInterface(&m_xBreakpoint);
 }

@@ -3,18 +3,18 @@
 #include "plain_editor_global.h"
 
 #include <decoration.h>
-#include <QPlainTextEdit>
+#include "publicplaintext.h"
 
-class IPlainTextEditDecorator : public IDecoration<QPlainTextEdit>
+class IPlainTextEditDecorator : public IDecoration<QAbstractScrollArea>
 {
 public:
-	IPlainTextEditDecorator(QPlainTextEdit* pCore);
+	IPlainTextEditDecorator(QAbstractScrollArea* pCore);
 	virtual ~IPlainTextEditDecorator();
 
 protected:
 	virtual void paintEvent(QPaintEvent* pEvent) override
 	{ 
-		// CoreWidget()->update(pEvent->rect());
-		IDecoration::paintEvent(pEvent);
+		CoreWidget()->update(pEvent->rect());
+		//IDecoration::paintEvent(pEvent);
 	}
 };

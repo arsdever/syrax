@@ -14,7 +14,7 @@ class PLAIN_EDITOR_EXPORT CBreakpointDecoration : public IPlainTextEditDecorator
 	Q_OBJECT
 
 public:
-	CBreakpointDecoration(QPlainTextEdit* pCore);
+	CBreakpointDecoration(QAbstractScrollArea* pCore);
 	int BreakpointAreaWidth();
 	void DrawBreakpointArea(QPaintEvent* pEvent);
 
@@ -30,6 +30,6 @@ public slots:
 	void UpdateBreakpointAreaWidth();
 
 private:
-	CBreakpointArea* m_pBreakpointArea;
+	//CBreakpointArea* m_pBreakpointArea;
 	int m_nLocalWidth;
 };

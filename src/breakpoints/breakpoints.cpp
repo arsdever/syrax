@@ -105,3 +105,8 @@ void CBreakpointManager::OnChanged(ui32 nLine)
 void CBreakpointManager::Notify()
 {
 }
+
+QList<ui32> CBreakpointManager::GetBreakpointList() const
+{
+	return m_aBreakpoints;
+}

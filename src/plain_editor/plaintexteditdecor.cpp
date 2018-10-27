@@ -1,6 +1,6 @@
 #include "plaintexteditdecor.h"
 
-IPlainTextEditDecorator::IPlainTextEditDecorator(QPlainTextEdit* pCore)
+IPlainTextEditDecorator::IPlainTextEditDecorator(QAbstractScrollArea* pCore)
 	: IDecoration(pCore)
 {
 }

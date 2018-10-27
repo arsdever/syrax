@@ -7,9 +7,9 @@
 #include <QResizeEvent>
 #include <QPainter>
 
-CBreakpointDecoration::CBreakpointDecoration(QPlainTextEdit* pCore)
+CBreakpointDecoration::CBreakpointDecoration(QAbstractScrollArea* pCore)
 	: IPlainTextEditDecorator(pCore)
-	, m_pBreakpointArea(new CBreakpointArea(this))
+	//, m_pBreakpointArea(new CBreakpointArea(this))
 	, m_nLocalWidth(0)
 {
 	UpdateBreakpointAreaWidth();
@@ -17,21 +17,25 @@ CBreakpointDecoration::CBreakpointDecoration(QPlainTextEdit* pCore)
 
 void CBreakpointDecoration::UpdateBreakpointAreaWidth()
 {
+	CPublicPlainTextEdit* editor = dynamic_cast<CPublicPlainTextEdit*>(CoreWidget());
+	if (editor == nullptr)
+		return;
+
 	int wdt = BreakpointAreaWidth();
-	QMargins mgs = viewportMargins() + QMargins(wdt, 0, 0, 0) - QMargins(m_nLocalWidth, 0, 0, 0);
+	QMargins mgs = editor->viewportMargins() + QMargins(wdt, 0, 0, 0) - QMargins(m_nLocalWidth, 0, 0, 0);
 	m_nLocalWidth = wdt;
-	setViewportMargins(mgs);
+	editor->setViewportMargins(mgs);
 
 	QRect cr = contentsRect();
-	m_pBreakpointArea->setGeometry(QRect(cr.left(), cr.top(), wdt, cr.height()));
+	setGeometry(QRect(cr.left(), cr.top(), wdt, cr.height()));
 }
 
 void CBreakpointDecoration::UpdateBreakpointArea(QRect rect, int dy)
 {
 	if (dy)
-		m_pBreakpointArea->scroll(0, dy);
+		scroll(0, dy);
 	else
-		m_pBreakpointArea->update(0, rect.y(), m_pBreakpointArea->width(), rect.height());
+		update(0, rect.y(), width(), rect.height());
 }
 
 int CBreakpointDecoration::BreakpointAreaWidth()
@@ -41,25 +45,33 @@ int CBreakpointDecoration::BreakpointAreaWidth()
 
 void CBreakpointDecoration::paintEvent(QPaintEvent* pEvent)
 {
-	QRect dr = pEvent->rect();
+	DrawBreakpointArea(pEvent);
 	IPlainTextEditDecorator::paintEvent(pEvent);
 }
 
 void CBreakpointDecoration::DrawBreakpointArea(QPaintEvent* pEvent)
 {
-	QPainter painter(m_pBreakpointArea);
+	CPublicPlainTextEdit* editor = dynamic_cast<CPublicPlainTextEdit*>(CoreWidget());
+	if (editor == nullptr)
+		return;
+
+	QPainter painter(this);
 	painter.setRenderHint(QPainter::Antialiasing);
 	painter.fillRect(pEvent->rect(), CSettings::GetGlobalDefaultSettings()->editor.breakpointarea.background);
-	QTextBlock block = firstVisibleBlock();
+	QTextBlock block = editor->firstVisibleBlock();
 	int blockNumber = block.blockNumber();
-	int top = (int)blockBoundingGeometry(block).translated(contentOffset()).top();
-	int bottom = top + (int)blockBoundingRect(block).height();
+	int top = (int)editor->blockBoundingGeometry(block).translated(editor->contentOffset()).top();
+	int bottom = top + (int)editor->blockBoundingRect(block).height();
 	int size = BreakpointAreaWidth();
 	painter.setBrush(CSettings::GetGlobalDefaultSettings()->editor.breakpointarea.breakpoint.background);
 	painter.setPen(QPen(CSettings::GetGlobalDefaultSettings()->editor.breakpointarea.breakpoint.bordercolor, CSettings::GetGlobalDefaultSettings()->editor.breakpointarea.breakpoint.borderwidth));
 	while (block.isValid() && top <= pEvent->rect().bottom())
 	{
-		if (block.isVisible() && bottom >= pEvent->rect().top() && m_pBreakpointArea->GetBreakpointList().contains(blockNumber + 1))
+		CBreakpointManager* pBPmanager = GetCore()->GetManager<CBreakpointManager>();
+		if (pBPmanager == nullptr)
+			return;
+
+		if (block.isVisible() && bottom >= pEvent->rect().top() && pBPmanager->GetBreakpointList().contains(blockNumber + 1))
 		{
 			painter.drawEllipse(3, top + 3, size - 6, size - 6);
 		}
@@ -77,17 +89,21 @@ void CBreakpointDecoration::DrawBreakpointArea(QPaintEvent* pEvent)
 
 		block = block.next();
 		top = bottom;
-		bottom = top + (int)blockBoundingRect(block).height();
+		bottom = top + (int)editor->blockBoundingRect(block).height();
 		++blockNumber;
 	}
 }
 
 ui32 CBreakpointDecoration::GetLineIndexByCoordinate(ui32 nYPos)
 {
-	QTextBlock block = firstVisibleBlock();
+	CPublicPlainTextEdit* editor = dynamic_cast<CPublicPlainTextEdit*>(CoreWidget());
+	if (editor == nullptr)
+		return -1;
+
+	QTextBlock block = editor->firstVisibleBlock();
 	int blockNumber = block.blockNumber();
-	int top = (int)blockBoundingGeometry(block).translated(contentOffset()).top();
-	int bottom = top + (int)blockBoundingRect(block).height();
+	int top = (int)editor->blockBoundingGeometry(block).translated(editor->contentOffset()).top();
+	int bottom = top + (int)editor->blockBoundingRect(block).height();
 	while (block.isValid())
 	{
 		if (nYPos <= bottom && nYPos >= top)
@@ -96,8 +112,8 @@ ui32 CBreakpointDecoration::GetLineIndexByCoordinate(ui32 nYPos)
 		}
 
 		block = block.next();
-		top = (int)blockBoundingGeometry(block).translated(contentOffset()).top();
-		bottom = top + (int)blockBoundingRect(block).height();
+		top = (int)editor->blockBoundingGeometry(block).translated(editor->contentOffset()).top();
+		bottom = top + (int)editor->blockBoundingRect(block).height();
 		++blockNumber;
 	}
 
@@ -106,6 +122,6 @@ ui32 CBreakpointDecoration::GetLineIndexByCoordinate(ui32 nYPos)
 
 void CBreakpointDecoration::resizeEvent(QResizeEvent* pEvent)
 {
-	QPlainTextEdit::resizeEvent(pEvent);
+	QWidget::resizeEvent(pEvent);
 	UpdateBreakpointAreaWidth();
 }

@@ -9,11 +9,17 @@
 #include <QMessageBox>
 #include "../console/console.h"
 #include "../console/console_mgr.h"
+#include <editormgr.h>
 
 CApplication::CApplication(QWidget *parent)
 	: QMainWindow(parent)
 {
 	Init();
+	m_pManager = GetCore()->GetManager<CApplicationManager>();
+	if (m_pManager == nullptr)
+		return;
+
+	m_pManager->RegisterInterface(&m_xApplication);
 }
 
 CApplication::~CApplication()
@@ -22,12 +28,16 @@ CApplication::~CApplication()
 
 void CApplication::Init()
 {
-	m_pEditor = new CLineNumberDecoration(nullptr);
-
-	connect(m_pEditor, SIGNAL(textChanged()), this, SLOT(OnChanged()));
+	QTabWidget* pCentralWidget = new QTabWidget();
+	pCentralWidget->setTabsClosable(true);
 	m_pBreakpointWindow = new CBreakpointWindow();
 	m_pConsoleWindow = new CConsole();
-	setCentralWidget(m_pEditor);
+	CEditorManager* pEditorManager = GetCore()->GetManager<CEditorManager>();
+
+	if (pEditorManager != nullptr)
+		pEditorManager->SetTabWidget(pCentralWidget);
+
+	setCentralWidget(pCentralWidget);
 	m_bUnsaved = false;
 
 	CDockWidget* pBreakpointsDock = new CDockWidget("Breakpoints", this);
@@ -77,14 +87,22 @@ void CApplication::ActionHandler()
 
 	QMenu* pMenu = dynamic_cast<QMenu*>(pAction->parent());
 	if (pMenu->title() == "File")
-	{
+	{/*
+		if (pAction->text() == "New" && AskForSave())
+		{
+			m_pEditor->setPlainText("");
+			return;
+		}*/
 		if (pAction->text() == "New")
 		{
+			CEditorManager* pManager = GetCore()->GetManager<CEditorManager>();
+			if (pManager != nullptr)
+				pManager->NewEditor("./tmp.txt");
 			return;
 		}
 		if (pAction->text() == "Save")
 		{
-			SaveChanges();
+			m_pManager->SaveChanges();
 		}
 		if (pAction->text() == "Open" && AskForSave())
 		{
@@ -92,6 +110,7 @@ void CApplication::ActionHandler()
 			if (path == "")
 				return;
 
+			m_strWorkingPath = path;
 			CConsoleManager* pManager = GetCore()->GetManager<CConsoleManager>();
 			if (pManager != nullptr)
 				pManager->PrintInfoMessage(tr("Opening file from path \"%0\"").arg(path));
@@ -113,8 +132,8 @@ void CApplication::ActionHandler()
 		}
 		if (pAction->text() == "Exit")
 		{
-			if(AskForSave())
-				close();
+			if (AskForSave())
+				m_pManager->CloseApplication();
 		}
 	}
 	else if (pMenu->title() == "View")
@@ -140,7 +159,7 @@ void CApplication::ActionHandler()
 	}
 }
 
-void CApplication::SaveChanges()
+void CApplication::SaveChanges(QString const& strPath)
 {
 	CConsoleManager* pManager = GetCore()->GetManager<CConsoleManager>();
 	if (pManager != nullptr)
@@ -162,6 +181,28 @@ bool CApplication::AskForSave()
 		return false;
 		
 	if (answer == QMessageBox::Yes)
-		SaveChanges();
+		m_pManager->SaveChanges();
+
 	return true;
+}
+
+
+void CApplication::XApplication::CloseApplication()
+{
+	m_pThis->close();
+}
+
+void CApplication::XApplication::NewFile()
+{
+
+}
+
+void CApplication::XApplication::SaveFile()
+{
+
+}
+
+void CApplication::XApplication::OpenFile()
+{
+
 }

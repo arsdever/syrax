@@ -26,23 +26,23 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="application_global.h">
+    <ClCompile Include="editor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="editormgr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="editor_global.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="editor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="application_mgr.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="application.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <QtMoc Include="application.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="application_mgr.h">
+    <QtMoc Include="editormgr.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

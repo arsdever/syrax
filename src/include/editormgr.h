@@ -1,0 +1,1 @@
+#include "../editor/editormgr.h"

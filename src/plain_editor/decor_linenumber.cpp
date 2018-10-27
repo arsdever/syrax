@@ -7,9 +7,9 @@
 #include <QResizeEvent>
 #include <QPainter>
 
-CLineNumberDecoration::CLineNumberDecoration(QPlainTextEdit* pCore)
+CLineNumberDecoration::CLineNumberDecoration(QAbstractScrollArea* pCore)
 	: IPlainTextEditDecorator(pCore)
-	, m_pNumberArea(new CNumberArea(this))
+	//, m_pNumberArea(new CNumberArea(this))
 	, m_nLocalWidth(0)
 {
 	UpdateNumberAreaWidth();
@@ -19,31 +19,43 @@ CLineNumberDecoration::CLineNumberDecoration(QPlainTextEdit* pCore)
 
 void CLineNumberDecoration::UpdateNumberAreaWidth()
 {
+	CPublicPlainTextEdit* editor = dynamic_cast<CPublicPlainTextEdit*>(CoreWidget());
+	if (editor == nullptr)
+		return;
+
 	int wdt = NumberAreaWidth();
-	QMargins mgs = viewportMargins();
+	QMargins mgs = editor->viewportMargins();
 	mgs += QMargins(wdt, 0, 0, 0);
 	mgs -= QMargins(m_nLocalWidth, 0, 0, 0);
 	m_nLocalWidth = wdt;
-	setViewportMargins(mgs);
+	editor->setViewportMargins(mgs);
 
 	QRect cr = contentsRect();
-	m_pNumberArea->setGeometry(QRect(cr.left(), cr.top(), NumberAreaWidth(), cr.height()));
+	setGeometry(QRect(cr.left(), cr.top(), NumberAreaWidth(), cr.height()));
 }
 
 void CLineNumberDecoration::UpdateNumberArea(QRect rect, int dy)
 {
-	if (dy)
-		m_pNumberArea->scroll(0, dy);
-	else
-		m_pNumberArea->update(0, rect.y(), m_pNumberArea->width(), rect.height());
+	CPublicPlainTextEdit* editor = dynamic_cast<CPublicPlainTextEdit*>(CoreWidget());
+	if (editor == nullptr)
+		return;
 
-	if (rect.contains(viewport()->rect()))
+	if (dy)
+		scroll(0, dy);
+	else
+		update(0, rect.y(), width(), rect.height());
+
+	if (rect.contains(editor->viewport()->rect()))
 		UpdateNumberAreaWidth();
 }
 
 int CLineNumberDecoration::NumberAreaWidth()
 {
-	int digits = DigitCount(qMax(1, blockCount()));
+	CPublicPlainTextEdit* editor = dynamic_cast<CPublicPlainTextEdit*>(CoreWidget());
+	if (editor == nullptr)
+		return -1;
+
+	int digits = DigitCount(qMax(1, editor->blockCount()));
 
 	if (digits < 3)
 		digits = 3;
@@ -61,30 +73,34 @@ void CLineNumberDecoration::paintEvent(QPaintEvent* pEvent)
 
 void CLineNumberDecoration::DrawNumberArea(QPaintEvent* pEvent)
 {
-	QPainter p(m_pNumberArea);
+	CPublicPlainTextEdit* editor = dynamic_cast<CPublicPlainTextEdit*>(CoreWidget());
+	if (editor == nullptr)
+		return;
+
+	QPainter p(this);
 
 	QRect r = pEvent->rect();
 	p.fillRect(pEvent->rect(), CSettings::GetGlobalDefaultSettings()->editor.numberarea.background);
 
 	p.setPen(CSettings::GetGlobalDefaultSettings()->editor.numberarea.foreground);
-	QTextBlock blk = firstVisibleBlock();
+	QTextBlock blk = editor->firstVisibleBlock();
 	int bn = blk.blockNumber();
-	int t = (int)blockBoundingGeometry(blk).translated(contentOffset()).top();
-	int b = t + (int)blockBoundingRect(blk).height();
+	int t = (int)editor->blockBoundingGeometry(blk).translated(editor->contentOffset()).top();
+	int b = t + (int)editor->blockBoundingRect(blk).height();
 	while (blk.isValid() && t <= pEvent->rect().bottom())
 	{
 		if (blk.isVisible() && b >= pEvent->rect().top())
-			p.drawText(QRect(0, t, m_pNumberArea->width() - 5, fontMetrics().height()), Qt::AlignRight, QString::number(bn + 1));
+			p.drawText(QRect(0, t, width() - 5, fontMetrics().height()), Qt::AlignRight, QString::number(bn + 1));
 
 		blk = blk.next();
 		t = b;
-		b = t + (int)blockBoundingRect(blk).height();
+		b = t + (int)editor->blockBoundingRect(blk).height();
 		++bn;
 	}
 }
 
 void CLineNumberDecoration::resizeEvent(QResizeEvent* pEvent)
 {
-	QPlainTextEdit::resizeEvent(pEvent);
+	QWidget::resizeEvent(pEvent);
 	UpdateNumberAreaWidth();
 }
