@@ -1,9 +1,11 @@
 #pragma once
 
 #include "editor_global.h"
+
 #include <interfaces.h>
 #include <macros.h>
 #include <editor.h>
+
 #include <QObject>
 
 class QPlainTextEdit;

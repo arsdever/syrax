@@ -1,9 +1,11 @@
 #pragma once
 
-#include <QWidget>
 #include "console_global.h"
+
 #include <interfaces.h>
 #include <macros.h>
+
+#include <QWidget>
 #include <QTextEdit>
 
 class QKeyEvent;

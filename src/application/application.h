@@ -2,16 +2,12 @@
 
 #include "application_global.h"
 
-// QT includes
-#include <QMainWindow>
-#include <QSet>
-
-// Project includes
 #include <interfaces.h>
 #include <macros.h>
 
-//#include <bpmanager.h>
-//#include "application_mgr.h"
+// QT includes
+#include <QMainWindow>
+#include <QSet>
 
 class QMenuBar;
 class CDockWidget;

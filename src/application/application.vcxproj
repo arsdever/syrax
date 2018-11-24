@@ -98,9 +98,6 @@
     </QtMoc>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ProjectReference Include="..\breakpoints\breakpoints.vcxproj">
-      <Project>{9be6a6fc-000a-48ab-8e20-a891469e336e}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\console\console.vcxproj">
       <Project>{3e599e0a-e5a3-4fc4-a8e6-3a6e1d7d9a02}</Project>
     </ProjectReference>

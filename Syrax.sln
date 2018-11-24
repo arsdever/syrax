@@ -27,8 +27,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "important_files", "importan
 		src\include\typedef.h = src\include\typedef.h
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "breakpoints", "src\breakpoints\breakpoints.vcxproj", "{9BE6A6FC-000A-48AB-8E20-A891469E336E}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "widgets", "src\widgets\widgets.vcxproj", "{AF969AC4-8AF9-4F6A-8EA2-C33AE6D74D2F}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "console", "src\console\console.vcxproj", "{3E599E0A-E5A3-4FC4-A8E6-3A6E1D7D9A02}"
@@ -57,12 +55,6 @@ Global
 		{3EF31140-6D38-4155-8EA4-A2B11EBE9124}.Release|x64.ActiveCfg = Release|x64
 		{3EF31140-6D38-4155-8EA4-A2B11EBE9124}.Release|x64.Build.0 = Release|x64
 		{3EF31140-6D38-4155-8EA4-A2B11EBE9124}.Release|x86.ActiveCfg = Release|x64
-		{9BE6A6FC-000A-48AB-8E20-A891469E336E}.Debug|x64.ActiveCfg = Debug|x64
-		{9BE6A6FC-000A-48AB-8E20-A891469E336E}.Debug|x64.Build.0 = Debug|x64
-		{9BE6A6FC-000A-48AB-8E20-A891469E336E}.Debug|x86.ActiveCfg = Debug|x64
-		{9BE6A6FC-000A-48AB-8E20-A891469E336E}.Release|x64.ActiveCfg = Release|x64
-		{9BE6A6FC-000A-48AB-8E20-A891469E336E}.Release|x64.Build.0 = Release|x64
-		{9BE6A6FC-000A-48AB-8E20-A891469E336E}.Release|x86.ActiveCfg = Release|x64
 		{AF969AC4-8AF9-4F6A-8EA2-C33AE6D74D2F}.Debug|x64.ActiveCfg = Debug|x64
 		{AF969AC4-8AF9-4F6A-8EA2-C33AE6D74D2F}.Debug|x64.Build.0 = Debug|x64
 		{AF969AC4-8AF9-4F6A-8EA2-C33AE6D74D2F}.Debug|x86.ActiveCfg = Debug|x64
@@ -92,7 +84,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		Qt5Version = msvc2017_64
 		SolutionGuid = {BD73BC7F-33A1-4223-B60F-264A44DF9B5C}
+		Qt5Version = msvc2017_64
 	EndGlobalSection
 EndGlobal

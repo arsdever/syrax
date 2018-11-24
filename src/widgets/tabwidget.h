@@ -9,4 +9,3 @@ public:
 	CTabWidget(QWidget* pParent = nullptr);
 	~CTabWidget();
 };
-

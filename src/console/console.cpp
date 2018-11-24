@@ -1,18 +1,9 @@
 #include "console.h"
 
-#include <QLineEdit>
-#include <QTextEdit>
-#include <QVBoxLayout>
-#include <QApplication>
 #include <core.h>
+
 #include <QKeyEvent>
 #include <QMenuBar>
-#include <QMenu>
-#include <QAction>
-
-#ifdef QT_DEBUG
-#include <QDebug>
-#endif
 
 CConsole::CConsole(QWidget* pParent)
 	: QTextEdit(pParent)
@@ -121,12 +112,16 @@ void CConsole::ViewActionTriggered(bool bChecked)
 	if (plgList.empty())
 		return;
 
-	IApplication* pApplication = *plgList.begin();
+	for (IApplication* pApplication : plgList)
+	{
+		if (pApplication == nullptr)
+			continue;
 
-	if(bChecked)
-		pApplication->AddDockWidget(this, "Console", Qt::BottomDockWidgetArea);
-	else
-		pApplication->RemoveDockWidget(this);
+		if (bChecked)
+			pApplication->AddDockWidget(this, "Console", Qt::BottomDockWidgetArea);
+		else
+			pApplication->RemoveDockWidget(this);
+	}
 }
 
 void CConsole::XApplication::Close()

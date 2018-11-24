@@ -100,7 +100,6 @@
   <ItemGroup>
     <ClCompile Include="editor.cpp" />
     <ClCompile Include="editormgr.cpp" />
-    <ClCompile Include="public_plain_text_edit.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="editor.h" />

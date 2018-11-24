@@ -1,8 +1,6 @@
 #include "application.h"
 
-#include <console.h>
 #include <core.h>
-#include <bpwindow.h>
 #include <dockwidget.h>
 
 #include <QMenuBar>
@@ -74,6 +72,10 @@ void CApplication::LoadPlugin(QString const& path)
 {
 	typedef void(*Initializer)(QMenuBar*);
 	Initializer initializer = (Initializer)QLibrary::resolve(path, "LoadPlugin");
+
+	if (initializer == nullptr)
+		return;
+
 	initializer(menuBar());
 }
 

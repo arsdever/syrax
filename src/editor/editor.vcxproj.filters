@@ -32,9 +32,6 @@
     <ClCompile Include="editormgr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="public_plain_text_edit.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="editor_global.h">

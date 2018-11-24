@@ -1,5 +1,7 @@
 #include "editormgr.h"
-#include "../widgets/tabwidget.h"
+
+#include <tabwidget.h>
+
 #include <QPlainTextEdit>
 
 CEditorManager* CEditorManager::s_pGlobalInstance = nullptr;
