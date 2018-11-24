@@ -35,10 +35,10 @@
     <ClInclude Include="core.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="decoration.h">
+    <ClInclude Include="core_global.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="core_global.h">
+    <ClInclude Include="core_impl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -52,10 +52,5 @@
     <ClCompile Include="core.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <QtMoc Include="notifier.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
   </ItemGroup>
 </Project>

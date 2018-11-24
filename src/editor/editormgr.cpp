@@ -1,11 +1,17 @@
 #include "editormgr.h"
-#include <QTabWidget>
+#include "../widgets/tabwidget.h"
 #include <QPlainTextEdit>
 
+CEditorManager* CEditorManager::s_pGlobalInstance = nullptr;
+
 CEditorManager::CEditorManager(QObject* pParent)
-	: CPluginManager(pParent)
+	: QObject(pParent)
+	, m_pTabWidget(new CTabWidget())
 	, m_nCurrentEditor(-1)
 {
+	m_pTabWidget->setTabsClosable(true);
+	connect(m_pTabWidget, SIGNAL(tabCloseRequested(int)), this, SLOT(OnClose(int)));
+	connect(m_pTabWidget, SIGNAL(currentChanged(int)), this, SLOT(OnCurrentChanged(int)));
 }
 
 CEditorManager::~CEditorManager()
@@ -27,16 +33,9 @@ CEditor* CEditorManager::GetEditor(QPlainTextEdit* pEditor) const
 	return nullptr;
 }
 
-void CEditorManager::NewEditor(QString const& strPath)
+CEditor* CEditorManager::GetEditorAt(int nIndex) const
 {
-	CEditor* pNew = new CEditor(strPath);
-	m_lstEditors.push_back(pNew);
-	SetCurrentEditor(m_lstEditors.size() - 1);
-
-	if (m_pTabWidget == nullptr)
-		return;
-
-	m_pTabWidget->addTab(pNew->GetCore(), pNew->GetFileName());
+	return m_lstEditors.at(nIndex);
 }
 
 void CEditorManager::SetCurrentEditor(int nIndex)
@@ -64,18 +63,28 @@ void CEditorManager::SetTabWidget(QTabWidget* pTabWidget)
 	m_pTabWidget = pTabWidget;
 }
 
-void CEditorManager::CloseEditor(int nIndex)
+QTabWidget* CEditorManager::GetTabWidget() const
 {
+	return m_pTabWidget;
+}
+
+void CEditorManager::SaveCurrent()
+{
+}
+
+void CEditorManager::SaveAll()
+{
+
 }
 
 void CEditorManager::CloseEditor(CEditor* pEditor)
 {
-	CloseEditor(GetTabIndex(pEditor));
+	Close(GetTabIndex(pEditor));
 }
 
 void CEditorManager::CloseEditor(QPlainTextEdit* pEditor)
 {
-	CloseEditor(GetTabIndex(pEditor));
+	Close(GetTabIndex(pEditor));
 }
 
 int CEditorManager::GetTabIndex(CEditor* pEditor) const
@@ -89,7 +98,113 @@ int CEditorManager::GetTabIndex(QPlainTextEdit* pEditor) const
 	int i = 0;
 	for (; it != m_lstEditors.cend(); ++i, ++it)
 	{
-		if ((*it)->GetCore() == pEditor)
+		if ((*it)->GetCoreWidget() == pEditor)
 			return i;
 	}
+	return -1;
+}
+
+void CEditorManager::XFileManipulator::Open(QStringList const& strPaths)
+{
+	for (QString path : strPaths)
+	{
+		CEditor* pNew = new CEditor(path);
+		if (!pNew->IsValid())
+		{
+			delete pNew;
+			continue;
+		}
+
+		m_pThis->m_lstEditors.push_back(pNew);
+
+		if (m_pThis->m_pTabWidget == nullptr)
+			return;
+
+		int newTabIndex = m_pThis->m_pTabWidget->addTab(pNew->GetCoreWidget(), pNew->GetFileName());
+		m_pThis->m_pTabWidget->setTabToolTip(newTabIndex, pNew->GetFilePath());
+	}
+	//m_pThis->SetCurrentEditor();
+}
+
+void CEditorManager::XFileManipulator::CloseAll(int nIndex)
+{
+	for(int index = m_pThis->m_lstEditors.size() - 1; index >= nIndex; --index)
+	{
+		m_pThis->Close(index);
+	}
+}
+
+void CEditorManager::XFileManipulator::SaveAll()
+{}
+
+void CEditorManager::XFileManipulator::Close(int nIndex)
+{
+	m_pThis->Close(nIndex);
+}
+
+void CEditorManager::XFileManipulator::Save(QString const&) {}
+
+void CEditorManager::XFileManipulator::New()
+{
+	CEditor* pNew = new CEditor();
+	m_pThis->m_lstEditors.push_back(pNew);
+
+	if (m_pThis->m_pTabWidget == nullptr)
+		return;
+
+	int newTabIndex = m_pThis->m_pTabWidget->addTab(pNew->GetCoreWidget(), pNew->GetFileName());
+	m_pThis->m_pTabWidget->setTabToolTip(newTabIndex, pNew->GetFilePath());
+}
+
+CEditorManager* CEditorManager::GlobalInstance()
+{
+	return s_pGlobalInstance == nullptr ? s_pGlobalInstance = new CEditorManager(GetCore()) : s_pGlobalInstance;
+}
+
+void CEditorManager::Close(int nIndex)
+{
+	if (nIndex < 0)
+	{
+		if (m_nCurrentEditor < 0)
+			return;
+
+		nIndex = m_nCurrentEditor;
+	}
+
+	CEditor* pClosing = GetEditorAt(nIndex);
+	if (!pClosing->AskForSave())
+		return;
+
+	m_pTabWidget->removeTab(nIndex);
+	delete pClosing;
+	m_lstEditors.removeAt(nIndex);
+}
+
+void CEditorManager::OnClose(int nIndex)
+{
+	QSet<IUnknown*> plgList = GetCore()->QueryInterface(IFileManipulator::UUID);
+	for (IUnknown* plg : plgList)
+	{
+		IFileManipulator* plugin = dynamic_cast<IFileManipulator*> (plg);
+
+		if (plugin == nullptr)
+			continue;
+
+		plugin->Close(nIndex);
+	}
+}
+
+void CEditorManager::OnCurrentChanged(int nIndex)
+{
+	m_nCurrentEditor = nIndex;
+}
+
+extern "C" EDITOR_EXPORT void LoadPlugin()
+{
+	CEditorManager::GlobalInstance();
+}
+
+extern "C" EDITOR_EXPORT QTabWidget* Widget()
+{
+	return CEditorManager::GlobalInstance()->GetTabWidget();
 }

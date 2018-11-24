@@ -1,27 +1,29 @@
 #include "core.h"
+#include "interfaces.h"
 
-void CCore::InstallManager(CPluginManager* pManager)
+static CCore instance;
+
+CCore::CCore(QObject* pParent)
+	: QObject(pParent)
+{}
+
+extern "C" CORE_EXPORT CCore* GetCore()
 {
-	for (auto mgr : m_lstManagers)
-		if (mgr == pManager)
-			return;
-
-	m_lstManagers.push_back(pManager);
+	return &instance;
 }
 
-void CCore::UninstallManager(CPluginManager* pManager)
+void CCore::RegisterInterface(IUnknown* pInterface)
 {
-	for (auto mgr : m_lstManagers)
-		if (mgr == pManager)
-		{
-			m_lstManagers.removeOne(mgr);
-			return;
-		}
+	if (pInterface != nullptr && !s_mapPlugins[pInterface->GetUUID()].contains(pInterface))
+		s_mapPlugins[pInterface->GetUUID()].insert(pInterface);
 }
 
-CCore* CCore::s_pUniqueInstance = new CCore();
-
-CORE_EXPORT CCore* GetCore()
+QSet<IUnknown*> CCore::QueryInterface(QString const& strInterfaceUUID)
 {
-	return CCore::s_pUniqueInstance;
+	if (s_mapPlugins.contains(strInterfaceUUID))
+		return s_mapPlugins[strInterfaceUUID];
+
+	return QSet<IUnknown*>();
 }
+
+QMap<QString, QSet<IUnknown*>> CCore::s_mapPlugins;

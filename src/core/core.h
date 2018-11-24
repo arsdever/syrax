@@ -1,40 +1,28 @@
 #pragma once
 
 #include "core_global.h"
-#include <QList>
 #include <QObject>
+#include <QMap>
+#include <QSet>
 
-class CPluginManager;
+class IUnknown;
 
 class CORE_EXPORT CCore : public QObject
 {
-private:
-	CCore()
-		: QObject(nullptr)
-	{
-
-	}
-
 public:
-	void InstallManager(CPluginManager* pManager);
-	void UninstallManager(CPluginManager* pManager);
+	CCore(QObject* pParent = nullptr);
+
+	void RegisterInterface(IUnknown* pInterface);
 
 	template <typename T>
-	T*	GetManager() const
-	{
-		for (auto mgr : m_lstManagers)
-		{
-			T* pMgr = dynamic_cast<T*>(mgr);
-			if (pMgr != nullptr)
-				return pMgr;
-		}
+	QSet<T*>  QueryInterface();
 
-		return nullptr;
-	}
-
-	CORE_EXPORT friend CCore* GetCore();
+	QSet<IUnknown*> QueryInterface(QString const& strInterfaceUUID);
 
 private:
-	QList<CPluginManager*> m_lstManagers;
-	static CCore* s_pUniqueInstance;
+	static QMap<QString, QSet<IUnknown*>> s_mapPlugins;
 };
+
+#include "core_impl.h"
+
+extern "C" CORE_EXPORT CCore* GetCore();

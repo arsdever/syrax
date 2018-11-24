@@ -26,30 +26,27 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="editor.cpp">
+    <ClCompile Include="breakpoints.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="editormgr.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="public_plain_text_edit.cpp">
+    <ClCompile Include="bpwindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="editor_global.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="public_plain_text_edit.h">
+    <ClInclude Include="breakpoints_global.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="editormgr.h">
+    <QtMoc Include="bpwindow.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="editor.h">
+    <QtMoc Include="breakpoints.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp.hint" />
   </ItemGroup>
 </Project>

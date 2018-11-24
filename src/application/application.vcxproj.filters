@@ -26,24 +26,18 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="application_global.h">
+    <QtMoc Include="application.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="application_mgr.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="application.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="application.h">
+    <ClInclude Include="application_global.h">
       <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="application_mgr.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
+    </ClInclude>
   </ItemGroup>
 </Project>

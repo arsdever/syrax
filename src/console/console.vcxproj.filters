@@ -29,9 +29,6 @@
     <ClCompile Include="console.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="console_mgr.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="console_global.h">
@@ -40,9 +37,6 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="console.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="console_mgr.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

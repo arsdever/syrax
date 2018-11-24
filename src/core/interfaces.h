@@ -6,37 +6,62 @@
 class CORE_EXPORT IUnknown
 {
 public:
-	static const QString UUID;
-	virtual ~IUnknown();
+	virtual QString const& GetUUID() = 0;
+	virtual ~IUnknown() = 0;
 };
 
 class CORE_EXPORT IBreakpoint : public IUnknown
 {
 public:
-	virtual void ToggleBreakpoint(int) = 0;
-};
-
-class CORE_EXPORT IConsole : public IUnknown
-{
-public:
-	virtual void PrintMessage(QString const&) = 0;
-	virtual void PrintError(QString const&) = 0;
-	virtual void PrintWarning(QString const&) = 0;
-	virtual void GetInput(QString const&) = 0;
+	static const QString UUID;
+	virtual QString const& GetUUID() { return UUID; }
+	virtual void ToggleBreakpoint(unsigned int) = 0;
 };
 
 class CORE_EXPORT ITextEditor : public IUnknown
 {
 public:
+	static const QString UUID;
+	virtual QString const& GetUUID() { return UUID; }
 	virtual void AddText(QString const&) = 0;
 	virtual void SetCursor(int, int) = 0;
+};
+
+class CORE_EXPORT IWidgetProvider : public IUnknown
+{
+public:
+	static const QString UUID;
+	virtual QString const& GetUUID() { return UUID; }
+	virtual QWidget* GetWidget(QString const&) = 0;
 };
 
 class CORE_EXPORT IApplication : public IUnknown
 {
 public:
-	virtual void CloseApplication() = 0;
-	virtual void SaveFile() = 0;
-	virtual void OpenFile() = 0;
-	virtual void NewFile() = 0;
+	static const QString UUID;
+	virtual QString const& GetUUID() { return UUID; }
+	virtual void Close() = 0;
+	virtual void AddDockWidget(QWidget*, QString const&, Qt::DockWidgetArea = Qt::NoDockWidgetArea) = 0;
+	virtual void RemoveDockWidget(QWidget*) = 0;
+};
+
+class CORE_EXPORT IEditor : public IUnknown
+{
+public:
+	static const QString UUID;
+	virtual QString const& GetUUID() { return UUID; }
+	virtual void GetCurrentLineIndex() = 0;
+};
+
+class CORE_EXPORT IFileManipulator : public IUnknown
+{
+public:
+	static const QString UUID;
+	virtual QString const& GetUUID() { return UUID; }
+	virtual void Open(QStringList const&) = 0;
+	virtual void CloseAll(int = 0) = 0;
+	virtual void SaveAll() = 0;
+	virtual void Close(int = -1) = 0;
+	virtual void Save(QString const& = "") = 0;
+	virtual void New() = 0;
 };

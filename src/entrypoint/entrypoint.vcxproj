@@ -68,7 +68,7 @@
       <OutputFile>$(OutDir)$(targetname)$(targetext)</OutputFile>
       <AdditionalLibraryDirectories>$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>qtmaind.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5Widgetsd.lib;$(outdir)application.lib;$(outdir)core.lib;$(outdir)console.lib;$(outdir)breakpoints.lib;$(outdir)editor.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>qtmaind.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5Widgetsd.lib;$(outdir)application.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <QtMoc>
       <OutputFile>.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</OutputFile>
@@ -130,10 +130,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\application\application.vcxproj">
-      <Project>{64403b50-a3eb-4f7f-9dad-31d9e89cecba}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\editor\editor.vcxproj">
-      <Project>{844ca09a-e01c-4685-a84b-c7afeee0ae9d}</Project>
+      <Project>{5e73c20f-7285-4d90-b1b4-ae7237782ea1}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

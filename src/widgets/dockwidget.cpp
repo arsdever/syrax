@@ -49,3 +49,8 @@ void CDockWidget::SetFocus()
 {
 	widget()->setFocus();
 }
+
+void CDockWidget::closeEvent(QCloseEvent* pEvent)
+{
+
+}

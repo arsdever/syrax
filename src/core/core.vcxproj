@@ -107,10 +107,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core_global.h" />
-    <ClInclude Include="decoration.h" />
+    <ClInclude Include="core_impl.h" />
     <ClInclude Include="interfaces.h" />
     <ClInclude Include="core.h" />
-    <QtMoc Include="notifier.h" />
     <ClInclude Include="manipulators.h" />
   </ItemGroup>
   <ItemGroup>

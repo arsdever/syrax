@@ -5,6 +5,7 @@
 
 class CDockWidgetTitleBar;
 class QPaintEvent;
+class QCloseEvent;
 
 class WIDGETS_EXPORT CDockWidget : public QDockWidget
 {
@@ -18,8 +19,9 @@ public:
 	void SetupUI();
 	inline bool Focused() { return m_bFocused; }
 
-private:
-	void paintEvent(QPaintEvent* pEvent);
+protected:
+	void closeEvent(QCloseEvent* pEvent) override;
+	void paintEvent(QPaintEvent* pEvent) override;
 
 private slots:
 	void SetFocus();

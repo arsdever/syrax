@@ -49,3 +49,5 @@ void CConsoleManager::PrintErrorMessage(QString const& msg)
 		pConsole->PrintError(msg);
 	}
 }
+
+DEFINE_MANAGER(CONSOLE, CConsoleManager)

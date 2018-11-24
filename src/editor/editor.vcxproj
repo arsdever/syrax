@@ -65,7 +65,7 @@
       <OutputFile>$(OutDir)\$(ProjectName).dll</OutputFile>
       <AdditionalLibraryDirectories>$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>qtmaind.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5Widgetsd.lib;$(outdir)plugin.lib;$(outdir)plain_editor.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>qtmaind.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5Widgetsd.lib;$(outdir)core.lib;$(outdir)widgets.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <QtMoc>
       <Define>UNICODE;_UNICODE;WIN32;WIN64;QT_DLL;QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;EDITOR_LIB;_WINDLL</Define>
@@ -100,18 +100,20 @@
   <ItemGroup>
     <ClCompile Include="editor.cpp" />
     <ClCompile Include="editormgr.cpp" />
+    <ClCompile Include="public_plain_text_edit.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="editor.h" />
+    <QtMoc Include="editor.h" />
+    <ClInclude Include="public_plain_text_edit.h" />
     <QtMoc Include="editormgr.h" />
     <ClInclude Include="editor_global.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\plain_editor\plain_editor.vcxproj">
-      <Project>{ea61111b-76fe-4606-a673-cfb268aaad71}</Project>
+    <ProjectReference Include="..\core\core.vcxproj">
+      <Project>{3ef31140-6d38-4155-8ea4-a2b11ebe9124}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\plugin\plugin.vcxproj">
-      <Project>{efaf288c-b881-4cd5-8d46-c325f264b667}</Project>
+    <ProjectReference Include="..\widgets\widgets.vcxproj">
+      <Project>{af969ac4-8af9-4f6a-8ea2-c33ae6d74d2f}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
