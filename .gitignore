@@ -1,7 +1,5 @@
 
-build/*
-!build/beta
-!build/stable
+build
 stable
 .vs
 .ssh*
