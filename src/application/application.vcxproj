@@ -103,6 +103,9 @@
     <ProjectReference Include="..\core\core.vcxproj">
       <Project>{3ef31140-6d38-4155-8ea4-a2b11ebe9124}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\editor\editor.vcxproj">
+      <Project>{844ca09a-e01c-4685-a84b-c7afeee0ae9d}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\widgets\widgets.vcxproj">
       <Project>{af969ac4-8af9-4f6a-8ea2-c33ae6d74d2f}</Project>
     </ProjectReference>

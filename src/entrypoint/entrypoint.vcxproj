@@ -122,7 +122,10 @@ xcopy "$(solutiondir)support" "$(outdir)" /Y</Command>
     </QtRcc>
     <PostBuildEvent>
       <Command>$(QTDIR)/bin/windeployqt.exe $(outdir)
-xcopy "$(solutiondir)support" "$(outdir)" /Y</Command>
+xcopy "$(solutiondir)support" "$(outdir)" /Y
+del $(targetdir)*.exp
+del $(targetdir)*.lib
+rd $(targetdir)obj /s /q</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

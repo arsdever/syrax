@@ -1,6 +1,7 @@
 #include "editormgr.h"
 
 #include <tabwidget.h>
+#include <manipulators.h>
 
 #include <QPlainTextEdit>
 
@@ -254,14 +255,7 @@ CEditorManager* CEditorManager::GlobalInstance()
 
 void CEditorManager::OnClose(int nIndex)
 {
-	QSet<IFileManipulator*> plgList = GetCore()->QueryInterface<IFileManipulator>();
-	for (IFileManipulator* plugin : plgList)
-	{
-		if (plugin == nullptr)
-			continue;
-
-		plugin->AskForClose(nIndex);
-	}
+	CallFunctionAndReturn<IFileManipulator>(IFileManipulator::AskForCloseFunctor(nIndex));
 }
 
 void CEditorManager::OnCurrentChanged(int nIndex)
@@ -279,9 +273,4 @@ void CEditorManager::OnTitleUpdated()
 extern "C" EDITOR_EXPORT void LoadPlugin()
 {
 	CEditorManager::GlobalInstance();
-}
-
-extern "C" EDITOR_EXPORT QTabWidget* Widget()
-{
-	return CEditorManager::GlobalInstance()->GetTabWidget();
 }

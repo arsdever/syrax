@@ -1,6 +1,7 @@
 #include "console.h"
 
 #include <core.h>
+#include <manipulators.h>
 
 #include <QKeyEvent>
 #include <QMenuBar>
@@ -98,10 +99,6 @@ void CConsole::XFileManipulator::New()
 {
 	m_pThis->append(QString("Opening new tab"));
 }
-void CConsole::XBreakpoint::ToggleBreakpoint(unsigned int nLine)
-{
-	m_pThis->append(QString("Toggling breakpoint at line %1").arg(nLine));
-}
 
 void CConsole::XFileManipulator::Close(qint32){}
 
@@ -125,22 +122,27 @@ bool CConsole::XFileManipulator::AskForClose(qint32 nIndex, IFileManipulator::EC
 	return true;
 }
 
+void CConsole::XLogger::Info(QString const& strLog)
+{
+	m_pThis->append("[INFO]    " + strLog);
+}
+
+void CConsole::XLogger::Warning(QString const& strLog)
+{
+	m_pThis->append("[WARNING] " + strLog);
+}
+
+void CConsole::XLogger::Error(QString const& strLog)
+{
+	m_pThis->append("[ERROR]   " + strLog);
+}
+
 void CConsole::ViewActionTriggered(bool bChecked)
 {
-	QSet<IApplication*> plgList = GetCore()->QueryInterface<IApplication>();
-	if (plgList.empty())
-		return;
-
-	for (IApplication* pApplication : plgList)
-	{
-		if (pApplication == nullptr)
-			continue;
-
-		if (bChecked)
-			pApplication->AddDockWidget(this, "Console", Qt::BottomDockWidgetArea);
-		else
-			pApplication->RemoveDockWidget(this);
-	}
+	if (bChecked)
+		CallFunction<IApplication>(IApplication::AddDockWidgetFunctor(this, "Console", Qt::BottomDockWidgetArea));
+	else
+		CallFunction<IApplication>(IApplication::RemoveDockWidgetFunctor(this));
 }
 
 void CConsole::XApplication::Close()

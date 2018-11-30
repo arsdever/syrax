@@ -2,6 +2,8 @@
 
 #include <core.h>
 #include <dockwidget.h>
+#include <editormgr.h>
+#include <manipulators.h>
 
 #include <QMenuBar>
 #include <QFileDialog>
@@ -48,17 +50,10 @@ void CApplication::AttachPlugins()
 
 void CApplication::Init()
 {
-	typedef QTabWidget* (*Widget)();
+	QTabWidget* tabWidget = CEditorManager::GlobalInstance()->GetTabWidget();
 
-#ifdef Debug
-	Widget widgetGetter = (Widget)QLibrary::resolve("editord", "Widget");
-#elif Release
-	Widget widgetGetter = (Widget)QLibrary::resolve("editor", "Widget");
-#endif
-
-	Q_CHECK_PTR(widgetGetter);
-	setCentralWidget(widgetGetter());
-
+	Q_CHECK_PTR(tabWidget);
+	setCentralWidget(tabWidget);
 	InitMenuBar();
 }
 
@@ -81,11 +76,16 @@ void CApplication::InitMenuBar()
 
 void CApplication::LoadPlugin(QString const& path)
 {
+	CallFunction<ILogger>(ILogger::InfoFunctor(QString("Loading plugin %1").arg(path)));
+
 	typedef void(*Initializer)(QMenuBar*);
 	Initializer initializer = (Initializer)QLibrary::resolve(path, "LoadPlugin");
 
 	if (initializer == nullptr)
+	{
+		CallFunction<ILogger>(ILogger::ErrorFunctor(QString("Loading plugin %1").arg(path)));
 		return;
+	}
 
 	initializer(menuBar());
 }
@@ -110,24 +110,20 @@ void CApplication::ActionHandler(bool toggled)
 		if (pAction->text() == "Open")
 			paths = QFileDialog::getOpenFileNames();
 
-		QSet<IFileManipulator*> plgSet = GetCore()->QueryInterface<IFileManipulator>();
-		for (IFileManipulator* plg : plgSet)
-		{
-			if (pAction->text() == "New")
-				plg->New();
-			else if (pAction->text() == "Save")
-				plg->Save();
-			else if (pAction->text() == "Save As...")
-				plg->SaveAs();
-			else if (pAction->text() == "Save All")
-				plg->SaveAll();
-			else if (pAction->text() == "Open")
-				plg->Open(paths);
-			else if (pAction->text() == "Close")
-				plg->AskForClose();
-			else if (pAction->text() == "Close All")
-				plg->AskForClose(-1, IFileManipulator::All);
-		}
+		if (pAction->text() == "New")
+			CallFunction<IFileManipulator>(IFileManipulator::NewFunctor());
+		else if (pAction->text() == "Save")
+			CallFunction<IFileManipulator>(IFileManipulator::SaveFunctor());
+		else if (pAction->text() == "Save As...")
+			CallFunction<IFileManipulator>(IFileManipulator::SaveAsFunctor());
+		else if (pAction->text() == "Save All")
+			CallFunction<IFileManipulator>(IFileManipulator::SaveAllFunctor());
+		else if (pAction->text() == "Open")
+			CallFunction<IFileManipulator>(IFileManipulator::OpenFunctor(paths));
+		else if (pAction->text() == "Close")
+			CallFunctionAndReturn<IFileManipulator>(IFileManipulator::AskForCloseFunctor());
+		else if (pAction->text() == "Close All")
+			CallFunctionAndReturn<IFileManipulator>(IFileManipulator::AskForCloseFunctor(-1, IFileManipulator::All));
 	}
 }
 
@@ -140,17 +136,14 @@ void CApplication::closeEvent(QCloseEvent* pEvent)
 {
 	Q_UNUSED(pEvent)
 	bool result = true;
-	QSet<IFileManipulator*> plgList = GetCore()->QueryInterface<IFileManipulator>();
-	for (IFileManipulator* plg : plgList)
-	{
-		result &= plg->AskForClose(-1, IFileManipulator::All);
-	}
+	QMap<void*, bool> results = CallFunctionAndReturn<IFileManipulator>(IFileManipulator::AskForCloseFunctor(-1, IFileManipulator::All));
+	for (bool b : results)
+		result &= b;
 
 	if (!result)
 		pEvent->ignore();
 	else
 	{
-		for (IFileManipulator* plg : plgList)
 		pEvent->accept();
 	}
 }

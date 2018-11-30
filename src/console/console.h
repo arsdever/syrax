@@ -32,15 +32,17 @@ class CONSOLE_EXPORT CConsole : public QTextEdit
 		virtual bool AskForClose(qint32, EClosingType) override;
 	REGISTER_INTERFACE_END(FileManipulator)
 
-	REGISTER_INTERFACE(CConsole, Breakpoint)
-		virtual void ToggleBreakpoint(unsigned int) override;
-	REGISTER_INTERFACE_END(Breakpoint)
-
 	REGISTER_INTERFACE(CConsole, Application)
 		virtual void Close() override;
 		virtual void AddDockWidget(QWidget*, QString const&, Qt::DockWidgetArea) override;
 		virtual void RemoveDockWidget(QWidget*) override;
 	REGISTER_INTERFACE_END(Application)
+
+	REGISTER_INTERFACE(CConsole, Logger)
+		virtual void Info(QString const&) override;
+		virtual void Warning(QString const&) override;
+		virtual void Error(QString const&) override;
+	REGISTER_INTERFACE_END(Logger)
 
 	CConsole(QWidget* pParent = nullptr);
 public:

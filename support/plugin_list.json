@@ -1,1 +1,4 @@
-["console", "breakpoints", "editor"]
+[
+  "console",
+  "breakpoints"
+]
