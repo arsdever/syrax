@@ -11,6 +11,7 @@
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonArray>
+#include <QCloseEvent>
 
 CApplication::CApplication(QWidget *parent)
 	: QMainWindow(parent)
@@ -37,14 +38,24 @@ void CApplication::AttachPlugins()
 	QJsonArray arr = doc.array();
 	for (auto plg : arr)
 	{
-		LoadPlugin(plg.toString());
+		LoadPlugin(plg.toString()
+#ifdef Debug
+			+ 'd'
+#endif
+		);
 	}
 }
 
 void CApplication::Init()
 {
 	typedef QTabWidget* (*Widget)();
+
+#ifdef Debug
+	Widget widgetGetter = (Widget)QLibrary::resolve("editord", "Widget");
+#elif Release
 	Widget widgetGetter = (Widget)QLibrary::resolve("editor", "Widget");
+#endif
+
 	Q_CHECK_PTR(widgetGetter);
 	setCentralWidget(widgetGetter());
 
@@ -91,18 +102,13 @@ void CApplication::ActionHandler(bool toggled)
 	{
 		if (pAction->text() == "Exit")
 		{
-			QSet<IApplication*> plgSet = GetCore()->QueryInterface<IApplication>();
-			for (IApplication* plg : plgSet)
-				plg->Close();
-
+			close();
 			return;
 		}
 
 		QStringList paths;
 		if (pAction->text() == "Open")
 			paths = QFileDialog::getOpenFileNames();
-		if (pAction->text() == "Save As...")
-			paths.push_back(QFileDialog::getSaveFileName());
 
 		QSet<IFileManipulator*> plgSet = GetCore()->QueryInterface<IFileManipulator>();
 		for (IFileManipulator* plg : plgSet)
@@ -112,25 +118,41 @@ void CApplication::ActionHandler(bool toggled)
 			else if (pAction->text() == "Save")
 				plg->Save();
 			else if (pAction->text() == "Save As...")
-				plg->Save(paths.front());
+				plg->SaveAs();
 			else if (pAction->text() == "Save All")
 				plg->SaveAll();
 			else if (pAction->text() == "Open")
-			{
 				plg->Open(paths);
-			}
 			else if (pAction->text() == "Close")
-				plg->Close();
+				plg->AskForClose();
 			else if (pAction->text() == "Close All")
-				plg->CloseAll();
-			return;
+				plg->AskForClose(-1, IFileManipulator::All);
 		}
 	}
 }
 
 void CApplication::XApplication::Close()
 {
+	m_pThis->close();
+}
 
+void CApplication::closeEvent(QCloseEvent* pEvent)
+{
+	Q_UNUSED(pEvent)
+	bool result = true;
+	QSet<IFileManipulator*> plgList = GetCore()->QueryInterface<IFileManipulator>();
+	for (IFileManipulator* plg : plgList)
+	{
+		result &= plg->AskForClose(-1, IFileManipulator::All);
+	}
+
+	if (!result)
+		pEvent->ignore();
+	else
+	{
+		for (IFileManipulator* plg : plgList)
+		pEvent->accept();
+	}
 }
 
 void CApplication::XApplication::AddDockWidget(QWidget* pWidget, QString const& strTitle, Qt::DockWidgetArea eArea)

@@ -5,13 +5,14 @@
     <QTDIR>C:\Qt\Qt5.11.2\5.11.2\msvc2017_64</QTDIR>
     <LocalDebuggerCommand>$(OutDir)\$(SolutionName).exe</LocalDebuggerCommand>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerWorkingDirectory>$(solutiondir)wkdir\</LocalDebuggerWorkingDirectory>
+    <LocalDebuggerWorkingDirectory>$(targetdir)</LocalDebuggerWorkingDirectory>
     <LocalDebuggerEnvironment>PATH=$(QTDIR)\bin%3b$(PATH)</LocalDebuggerEnvironment>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <QTDIR>C:\Qt\Qt5.11.2\5.11.2\msvc2017_64</QTDIR>
     <LocalDebuggerCommand>$(OutDir)\$(SolutionName).exe</LocalDebuggerCommand>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerWorkingDirectory>$(targetdir)</LocalDebuggerWorkingDirectory>
     <LocalDebuggerEnvironment>PATH=$(QTDIR)\bin%3b$(PATH)</LocalDebuggerEnvironment>
   </PropertyGroup>
 </Project>

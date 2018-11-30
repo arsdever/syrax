@@ -25,11 +25,23 @@ CEditor::CEditor(QString const& strPath, QWidget* pParent)
 	m_pCore->setPlainText(content);
 	m_fCurrentFile.close();
 	m_bUnsaved = false;
+	SetTitle(GetFileName());
 }
 
 CEditor::~CEditor()
 {
 	delete m_pCore;
+}
+
+QString const& CEditor::GetTitle() const
+{
+	return m_strTitle;
+}
+
+void CEditor::SetTitle(QString const& strTitle)
+{
+	m_strTitle = strTitle;
+	emit TitleChanged();
 }
 
 QString CEditor::GetFileName() const
@@ -40,8 +52,8 @@ QString CEditor::GetFileName() const
 
 QString CEditor::GetFilePath() const
 {
-	QString fpath = QFileInfo(m_fCurrentFile).filePath();
-	return fpath == "" ? "New File" : fpath;
+	bool b = m_fCurrentFile.exists();
+	return m_fCurrentFile.exists() ? QFileInfo(m_fCurrentFile).filePath() : "";
 }
 
 bool CEditor::Save()
@@ -74,6 +86,7 @@ bool CEditor::Save()
 
 	m_fCurrentFile.write(m_pCore->toPlainText().toUtf8());
 	m_bUnsaved = false;
+	SetTitle(GetFileName());
 	return true;
 }
 

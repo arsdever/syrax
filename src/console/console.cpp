@@ -71,21 +71,12 @@ void CConsole::XFileManipulator::Open(QStringList const& strPaths)
 	else
 		m_pThis->append(QString("Opening file \"%1\"").arg(strPaths.front()));
 }
-void CConsole::XFileManipulator::CloseAll(int nIndex) 
-{
-	if (nIndex == 0)
-		m_pThis->append(QString("Closing all tabs"));
-	else
-		m_pThis->append(QString("Closing all tabs after %1").arg(nIndex));
-}
+
 void CConsole::XFileManipulator::SaveAll() 
 {
 	m_pThis->append(QString("Saving all tabs"));
 }
-void CConsole::XFileManipulator::Close(int nIndex)
-{
-	m_pThis->append(nIndex < 0 ? QString("Closing current tab") : QString("Closing tab by index %1").arg(nIndex));
-}
+
 void CConsole::XFileManipulator::Save(QString const& strPath) 
 {
 	if (strPath == "")
@@ -97,6 +88,12 @@ void CConsole::XFileManipulator::Save(QString const& strPath)
 		m_pThis->append(QString("Saving current tab to path %1").arg(strPath));
 	}
 }
+
+void CConsole::XFileManipulator::SaveAs()
+{
+	m_pThis->append(QString("Save as..."));
+}
+
 void CConsole::XFileManipulator::New()
 {
 	m_pThis->append(QString("Opening new tab"));
@@ -104,6 +101,28 @@ void CConsole::XFileManipulator::New()
 void CConsole::XBreakpoint::ToggleBreakpoint(unsigned int nLine)
 {
 	m_pThis->append(QString("Toggling breakpoint at line %1").arg(nLine));
+}
+
+void CConsole::XFileManipulator::Close(qint32){}
+
+bool CConsole::XFileManipulator::AskForClose(qint32 nIndex, IFileManipulator::EClosingType eType)
+{
+	switch (eType)
+	{
+	case IFileManipulator::Single:
+		m_pThis->append(QString("Closing %1").arg(nIndex < 0 ? "current tab" : QString("tab by index %1").arg(nIndex)));
+		break;
+	case IFileManipulator::Right:
+		m_pThis->append(QString("Closing tabs after %1").arg(nIndex < 0 ? "current tab" : QString("tab by index %1").arg(nIndex)));
+		break;
+	case IFileManipulator::Left:
+		m_pThis->append(QString("Closing tabs before %1").arg(nIndex < 0 ? "current tab" : QString("tab by index %1").arg(nIndex)));
+		break;
+	case IFileManipulator::All:
+		m_pThis->append("Closing all tabs");
+		break;
+	}
+	return true;
 }
 
 void CConsole::ViewActionTriggered(bool bChecked)

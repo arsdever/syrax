@@ -19,12 +19,17 @@ class CONSOLE_EXPORT CConsole : public QTextEdit
 	Q_OBJECT
 
 	REGISTER_INTERFACE(CConsole, FileManipulator)
-		virtual void Open(QStringList const&) override;
-		virtual void CloseAll(int) override;
-		virtual void SaveAll() override;
-		virtual void Close(int) override;
-		virtual void Save(QString const&) override;
 		virtual void New() override;
+
+		virtual void Open(QStringList const&) override;
+
+		virtual void Save(QString const& = "") override;
+		virtual void SaveAs() override;
+		virtual void SaveAll() override;
+
+		virtual void Close(qint32 = -1) override;
+
+		virtual bool AskForClose(qint32, EClosingType) override;
 	REGISTER_INTERFACE_END(FileManipulator)
 
 	REGISTER_INTERFACE(CConsole, Breakpoint)

@@ -24,8 +24,14 @@ public:
 	bool IsValid() const { return m_bIsValid; }
 	bool IsUnsaved() const { return m_bUnsaved; }
 
+	QString const& GetTitle() const;
+	void SetTitle(QString const& strTitle);
+
 	bool AskForSave();
 	bool Save();
+
+signals:
+	void TitleChanged();
 
 public slots:
 	void OnChange();
@@ -33,6 +39,7 @@ public slots:
 private:
 	QPlainTextEdit* m_pCore;
 	QFile m_fCurrentFile;
+	QString m_strTitle;
 	bool m_bIsValid;
 	bool m_bUnsaved;
 };

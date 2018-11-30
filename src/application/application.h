@@ -12,6 +12,7 @@
 class QMenuBar;
 class CDockWidget;
 
+
 class APPLICATION_EXPORT CApplication : public QMainWindow
 {
 	Q_OBJECT
@@ -30,6 +31,9 @@ public:
 	void Init();
 	void InitMenuBar();
 	void LoadPlugin(QString const& path);
+
+protected:
+	void closeEvent(QCloseEvent* pEvent) override;
 
 protected slots:
 	void ActionHandler(bool toggled = false);

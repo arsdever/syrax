@@ -10,6 +10,8 @@ CEditorManager::CEditorManager(QObject* pParent)
 	: QObject(pParent)
 	, m_pTabWidget(new CTabWidget())
 	, m_nCurrentEditor(-1)
+	, m_arrUntitledIndexes(256, nullptr)
+	, m_itLastUntitled(m_arrUntitledIndexes.begin())
 {
 	m_pTabWidget->setTabsClosable(true);
 	connect(m_pTabWidget, SIGNAL(tabCloseRequested(int)), this, SLOT(OnClose(int)));
@@ -22,6 +24,9 @@ CEditorManager::~CEditorManager()
 
 CEditor* CEditorManager::GetCurrentEditor() const
 {
+	if (m_nCurrentEditor == -1)
+		return nullptr;
+
 	return m_lstEditors.at(m_nCurrentEditor);
 }
 
@@ -35,6 +40,11 @@ CEditor* CEditorManager::GetEditor(QPlainTextEdit* pEditor) const
 	return nullptr;
 }
 
+qint32 CEditorManager::GetCurrentEditorIndex() const
+{
+	return m_nCurrentEditor;
+}
+
 CEditor* CEditorManager::GetEditorAt(int nIndex) const
 {
 	return m_lstEditors.at(nIndex);
@@ -46,6 +56,7 @@ void CEditorManager::SetCurrentEditor(int nIndex)
 		return;
 
 	m_nCurrentEditor = nIndex;
+	m_pTabWidget->setCurrentIndex(nIndex);
 
 	emit CurrentEditorChanged(nIndex);
 }
@@ -70,25 +81,6 @@ QTabWidget* CEditorManager::GetTabWidget() const
 	return m_pTabWidget;
 }
 
-void CEditorManager::SaveCurrent()
-{
-}
-
-void CEditorManager::SaveAll()
-{
-
-}
-
-void CEditorManager::CloseEditor(CEditor* pEditor)
-{
-	Close(GetTabIndex(pEditor));
-}
-
-void CEditorManager::CloseEditor(QPlainTextEdit* pEditor)
-{
-	Close(GetTabIndex(pEditor));
-}
-
 int CEditorManager::GetTabIndex(CEditor* pEditor) const
 {
 	return m_lstEditors.indexOf(pEditor);
@@ -110,52 +102,149 @@ void CEditorManager::XFileManipulator::Open(QStringList const& strPaths)
 {
 	for (QString path : strPaths)
 	{
-		CEditor* pNew = new CEditor(path);
-		if (!pNew->IsValid())
+		bool found = false;
+		CEditor* editor = nullptr;
+		for (CEditor* pEditor : m_pThis->m_lstEditors)
 		{
-			delete pNew;
-			continue;
+			if (pEditor == nullptr)
+				continue;
+
+			if (pEditor->IsValid() && pEditor->GetFilePath() == path)
+			{
+				found = true;
+				editor = pEditor;
+				break;
+			}
 		}
 
-		m_pThis->m_lstEditors.push_back(pNew);
+		if (!found)
+		{
+			editor = new CEditor(path);
+			if (!editor->IsValid())
+			{
+				delete editor;
+				continue;
+			}
 
-		if (m_pThis->m_pTabWidget == nullptr)
-			return;
+			m_pThis->m_lstEditors.push_back(editor);
 
-		int newTabIndex = m_pThis->m_pTabWidget->addTab(pNew->GetCoreWidget(), pNew->GetFileName());
-		m_pThis->m_pTabWidget->setTabToolTip(newTabIndex, pNew->GetFilePath());
+			if (m_pThis->m_pTabWidget == nullptr)
+				return;
+
+			int newTabIndex = m_pThis->m_pTabWidget->addTab(editor->GetCoreWidget(), editor->GetFileName());
+			m_pThis->m_pTabWidget->setTabToolTip(newTabIndex, editor->GetFilePath());
+		}
+
+		m_pThis->SetCurrentEditor(editor);
 	}
 	//m_pThis->SetCurrentEditor();
 }
 
-void CEditorManager::XFileManipulator::CloseAll(int nIndex)
+void CEditorManager::XFileManipulator::SaveAll()
 {
-	for(int index = m_pThis->m_lstEditors.size() - 1; index >= nIndex; --index)
+	for (CEditor* editor : m_pThis->m_lstEditors)
 	{
-		m_pThis->Close(index);
+		if (!editor->Save())
+			return;
 	}
 }
 
-void CEditorManager::XFileManipulator::SaveAll()
-{}
-
-void CEditorManager::XFileManipulator::Close(int nIndex)
+void CEditorManager::XFileManipulator::Close(qint32 nIndex)
 {
-	m_pThis->Close(nIndex);
+	if (nIndex < 0)
+	{
+		if (m_pThis->m_nCurrentEditor < 0)
+			return;
+
+		nIndex = m_pThis->m_nCurrentEditor;
+	}
+
+	CEditor* pClosing = m_pThis->GetEditorAt(nIndex);
+
+	qint32 untitledIndex = m_pThis->m_arrUntitledIndexes.indexOf(pClosing);
+	if (untitledIndex != -1)
+		m_pThis->m_arrUntitledIndexes[untitledIndex] = nullptr;
+
+	m_pThis->m_pTabWidget->removeTab(nIndex);
+	delete pClosing;
+	m_pThis->m_lstEditors.removeAt(nIndex);
 }
 
-void CEditorManager::XFileManipulator::Save(QString const&) {}
+bool CEditorManager::XFileManipulator::AskForClose(qint32 nIndex, IFileManipulator::EClosingType eType)
+{
+	switch (eType)
+	{
+	case IFileManipulator::Single:
+	{
+		CEditor* pClosing = nullptr;
+		if (nIndex == -1)
+			pClosing = m_pThis->GetCurrentEditor();
+		else
+			pClosing = m_pThis->GetEditorAt(nIndex);
+
+		if (pClosing != nullptr && !pClosing->AskForSave())
+			return false;
+	
+		Close(nIndex);
+		return true;
+	}		
+	case IFileManipulator::Right:
+		for (int i = m_pThis->m_lstEditors.size() - 1; i > nIndex; --i)
+		{
+			if (!AskForClose(i, IFileManipulator::Single))
+				return false;
+		}
+		return true;
+	case IFileManipulator::Left:
+		for (int i = nIndex - 1; i >= 0; --i)
+		{
+			if (!AskForClose(i, IFileManipulator::Single))
+				return false;
+		}
+		return true;
+	case IFileManipulator::All:
+		for (int i = m_pThis->m_lstEditors.size() - 1; i >= 0; --i)
+		{
+			if (!AskForClose(i, IFileManipulator::Single))
+				return false;
+		}
+		return true;
+	}
+
+	return true;
+}
+
+void CEditorManager::XFileManipulator::Save(QString const&)
+{
+	m_pThis->GetCurrentEditor()->Save();
+}
+
+void CEditorManager::XFileManipulator::SaveAs()
+{
+
+}
 
 void CEditorManager::XFileManipulator::New()
 {
 	CEditor* pNew = new CEditor();
 	m_pThis->m_lstEditors.push_back(pNew);
+	qint32 index = 0;
+
+	for (void* ptr : m_pThis->m_arrUntitledIndexes)
+		if (ptr != nullptr)
+			++index;
+		else
+			break;
+
+	pNew->SetTitle(QString("Untitled tab %1").arg(QString::number(index + 1)));
+	m_pThis->m_arrUntitledIndexes[index] = pNew;
 
 	if (m_pThis->m_pTabWidget == nullptr)
 		return;
 
-	int newTabIndex = m_pThis->m_pTabWidget->addTab(pNew->GetCoreWidget(), pNew->GetFileName());
+	int newTabIndex = m_pThis->m_pTabWidget->addTab(pNew->GetCoreWidget(), pNew->GetTitle());
 	m_pThis->m_pTabWidget->setTabToolTip(newTabIndex, pNew->GetFilePath());
+	connect(pNew, SIGNAL(TitleUpdated()), m_pThis, SLOT(OnTitleUpdated()));
 }
 
 CEditorManager* CEditorManager::GlobalInstance()
@@ -163,42 +252,28 @@ CEditorManager* CEditorManager::GlobalInstance()
 	return s_pGlobalInstance == nullptr ? s_pGlobalInstance = new CEditorManager(GetCore()) : s_pGlobalInstance;
 }
 
-void CEditorManager::Close(int nIndex)
-{
-	if (nIndex < 0)
-	{
-		if (m_nCurrentEditor < 0)
-			return;
-
-		nIndex = m_nCurrentEditor;
-	}
-
-	CEditor* pClosing = GetEditorAt(nIndex);
-	if (!pClosing->AskForSave())
-		return;
-
-	m_pTabWidget->removeTab(nIndex);
-	delete pClosing;
-	m_lstEditors.removeAt(nIndex);
-}
-
 void CEditorManager::OnClose(int nIndex)
 {
-	QSet<IUnknown*> plgList = GetCore()->QueryInterface(IFileManipulator::UUID);
-	for (IUnknown* plg : plgList)
+	QSet<IFileManipulator*> plgList = GetCore()->QueryInterface<IFileManipulator>();
+	for (IFileManipulator* plugin : plgList)
 	{
-		IFileManipulator* plugin = dynamic_cast<IFileManipulator*> (plg);
-
 		if (plugin == nullptr)
 			continue;
 
-		plugin->Close(nIndex);
+		plugin->AskForClose(nIndex);
 	}
 }
 
 void CEditorManager::OnCurrentChanged(int nIndex)
 {
 	m_nCurrentEditor = nIndex;
+}
+
+void CEditorManager::OnTitleUpdated()
+{
+	qint32 idx = m_arrUntitledIndexes.indexOf(sender());
+	if (idx != -1)
+		m_arrUntitledIndexes[idx] = nullptr;
 }
 
 extern "C" EDITOR_EXPORT void LoadPlugin()
