@@ -1,1 +1,0 @@
-#include "../plugin/pluginmgr_base.h"

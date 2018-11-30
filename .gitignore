@@ -1,8 +1,7 @@
 
-build/*
-!build/beta
-!build/stable
+build
 stable
+tmp_trash
 .vs
 .ssh*
 .gitattributes
