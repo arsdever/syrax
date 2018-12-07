@@ -52,5 +52,5 @@ void CDockWidget::SetFocus()
 
 void CDockWidget::closeEvent(QCloseEvent* pEvent)
 {
-
+	emit SigClosed();
 }

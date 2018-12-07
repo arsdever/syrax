@@ -37,6 +37,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "application", "src\applicat
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "breakpoints", "src\breakpoints\breakpoints.vcxproj", "{CE273BD5-1889-4460-8A4C-C5BF5A939F86}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "logger", "src\logger\logger.vcxproj", "{A8781C0A-5D4A-4CB5-AAF9-BE38DAA07330}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		debug|x64 = debug|x64
@@ -87,12 +89,18 @@ Global
 		{CE273BD5-1889-4460-8A4C-C5BF5A939F86}.release|x64.ActiveCfg = Release|x64
 		{CE273BD5-1889-4460-8A4C-C5BF5A939F86}.release|x64.Build.0 = Release|x64
 		{CE273BD5-1889-4460-8A4C-C5BF5A939F86}.release|x86.ActiveCfg = Release|x64
+		{A8781C0A-5D4A-4CB5-AAF9-BE38DAA07330}.debug|x64.ActiveCfg = Debug|x64
+		{A8781C0A-5D4A-4CB5-AAF9-BE38DAA07330}.debug|x64.Build.0 = Debug|x64
+		{A8781C0A-5D4A-4CB5-AAF9-BE38DAA07330}.debug|x86.ActiveCfg = Debug|x64
+		{A8781C0A-5D4A-4CB5-AAF9-BE38DAA07330}.release|x64.ActiveCfg = Release|x64
+		{A8781C0A-5D4A-4CB5-AAF9-BE38DAA07330}.release|x64.Build.0 = Release|x64
+		{A8781C0A-5D4A-4CB5-AAF9-BE38DAA07330}.release|x86.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {BD73BC7F-33A1-4223-B60F-264A44DF9B5C}
 		Qt5Version = msvc2017_64
+		SolutionGuid = {BD73BC7F-33A1-4223-B60F-264A44DF9B5C}
 	EndGlobalSection
 EndGlobal

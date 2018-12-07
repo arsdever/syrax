@@ -1,7 +1,7 @@
 #pragma once
 
-#include <core.h>
-#include <interfaces.h>
+#include "core_global.h"
+#include "interfaces.h"
 
 template <typename _inttype_ >
 struct CORE_EXPORT Range
@@ -37,4 +37,17 @@ QMap<void*, RETURN_TYPE> CallFunctionAndReturn(IFunctor<INTERFACE_TYPE, RETURN_T
 		result[plugin] = functor(plugin);
 	}
 	return result;
+}
+
+template <typename INT_TYPE>
+QString NumberSuffix(INT_TYPE number)
+{
+	if (number % 10 == 1)
+		return QString("%1st").arg(number);
+	else if (number % 10 == 2)
+		return QString("%1nd").arg(number);
+	else if (number % 10 == 3)
+		return QString("%1rd").arg(number);
+	else
+		return QString("%1nd").arg(number);
 }

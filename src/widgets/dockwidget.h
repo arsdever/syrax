@@ -28,6 +28,7 @@ private slots:
 
 signals:
 	void SigFocusChanged(bool);
+	void SigClosed();
 
 private:
 	CDockWidgetTitleBar* m_pTitleBar;

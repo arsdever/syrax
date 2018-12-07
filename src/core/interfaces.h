@@ -1,14 +1,14 @@
 #pragma once
 
 #include "core.h"
+#include "macros.h"
 #include <QString>
-#include <macros.h>
 
 class CORE_EXPORT IUnknown
 {
 public:
-	virtual QString const& GetUUID() const = 0;
 	virtual ~IUnknown() = 0;
+	virtual QString const& GetUUID() const = 0;
 };
 
 template <typename INTERFACE_TYPE, typename RETURN_TYPE = void>

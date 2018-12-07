@@ -2,16 +2,13 @@
 
 #include "application_global.h"
 
-#include <interfaces.h>
-#include <macros.h>
+#include <core.h>
 
-// QT includes
 #include <QMainWindow>
-#include <QSet>
+#include <QList>
 
 class QMenuBar;
 class CDockWidget;
-
 
 class APPLICATION_EXPORT CApplication : public QMainWindow
 {
@@ -30,16 +27,18 @@ public:
 	void AttachPlugins();
 	void Init();
 	void InitMenuBar();
+
 	void LoadPlugin(QString const& path);
+	void UnloadPlugin(QString const& path);
 
 protected:
 	void closeEvent(QCloseEvent* pEvent) override;
 
 protected slots:
 	void ActionHandler(bool toggled = false);
-	//void OnChanged();
 
 private:
 	QMenuBar* m_pMenuBar;
-	QSet<CDockWidget*> m_setDocks;
+	QList<CDockWidget*> m_lstDocks;
+	QList<QString> m_lstPlugins;
 };

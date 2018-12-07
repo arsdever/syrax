@@ -111,6 +111,7 @@
     <ClInclude Include="core_impl.h" />
     <ClInclude Include="interfaces.h" />
     <ClInclude Include="core.h" />
+    <ClInclude Include="macros.h" />
     <ClInclude Include="manipulators.h" />
   </ItemGroup>
   <ItemGroup>

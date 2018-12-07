@@ -1,10 +1,9 @@
 #include "console.h"
 
-#include <core.h>
-#include <manipulators.h>
-
 #include <QKeyEvent>
 #include <QMenuBar>
+
+CConsole* CConsole::s_pInstance = nullptr;
 
 CConsole::CConsole(QWidget* pParent)
 	: QTextEdit(pParent)
@@ -41,86 +40,6 @@ void CConsole::ParseInputString()
 {
 	// magic happens
 }
-//
-//void CConsole::XConsole::PrintMessage(QString const& str)
-//{
-//	m_pThis->append(tr("%0 : %1").arg("[INFO] ", 10).arg(str));
-//}
-//
-//void CConsole::XConsole::PrintError(QString const& str)
-//{
-//	m_pThis->append(tr("%0 : %1").arg("[ERROR]", 10).arg(str));
-//}
-//
-//void CConsole::XConsole::PrintWarning(QString const& str)
-//{
-//	m_pThis->append(tr("%0 : %1").arg("[WARN] ", 10).arg(str));
-//}
-//
-//void CConsole::XConsole::GetInput(QString const& str)
-//{
-//	m_pThis->append(str);
-//}
-
-
-void CConsole::XFileManipulator::Open(QStringList const& strPaths) 
-{
-	if (strPaths.empty())
-		m_pThis->append(QString("No file choosen for opening"));
-	else if (strPaths.size() > 1)
-		m_pThis->append(QString("Opening multiple files [\"%1\"]").arg(strPaths.join("\",\"")));
-	else
-		m_pThis->append(QString("Opening file \"%1\"").arg(strPaths.front()));
-}
-
-void CConsole::XFileManipulator::SaveAll() 
-{
-	m_pThis->append(QString("Saving all tabs"));
-}
-
-void CConsole::XFileManipulator::Save(QString const& strPath) 
-{
-	if (strPath == "")
-	{
-		m_pThis->append(QString("Saving current tab"));
-	}
-	else
-	{
-		m_pThis->append(QString("Saving current tab to path %1").arg(strPath));
-	}
-}
-
-void CConsole::XFileManipulator::SaveAs()
-{
-	m_pThis->append(QString("Save as..."));
-}
-
-void CConsole::XFileManipulator::New()
-{
-	m_pThis->append(QString("Opening new tab"));
-}
-
-void CConsole::XFileManipulator::Close(qint32){}
-
-bool CConsole::XFileManipulator::AskForClose(qint32 nIndex, IFileManipulator::EClosingType eType)
-{
-	switch (eType)
-	{
-	case IFileManipulator::Single:
-		m_pThis->append(QString("Closing %1").arg(nIndex < 0 ? "current tab" : QString("tab by index %1").arg(nIndex)));
-		break;
-	case IFileManipulator::Right:
-		m_pThis->append(QString("Closing tabs after %1").arg(nIndex < 0 ? "current tab" : QString("tab by index %1").arg(nIndex)));
-		break;
-	case IFileManipulator::Left:
-		m_pThis->append(QString("Closing tabs before %1").arg(nIndex < 0 ? "current tab" : QString("tab by index %1").arg(nIndex)));
-		break;
-	case IFileManipulator::All:
-		m_pThis->append("Closing all tabs");
-		break;
-	}
-	return true;
-}
 
 void CConsole::XLogger::Info(QString const& strLog)
 {
@@ -140,24 +59,15 @@ void CConsole::XLogger::Error(QString const& strLog)
 void CConsole::ViewActionTriggered(bool bChecked)
 {
 	if (bChecked)
+	{
 		CallFunction<IApplication>(IApplication::AddDockWidgetFunctor(this, "Console", Qt::BottomDockWidgetArea));
+		CallFunction<ILogger>(ILogger::InfoFunctor("Console widget showing."));
+	}
 	else
+	{
 		CallFunction<IApplication>(IApplication::RemoveDockWidgetFunctor(this));
-}
-
-void CConsole::XApplication::Close()
-{
-	m_pThis->append(tr("Closing application."));
-}
-
-void CConsole::XApplication::AddDockWidget(QWidget*, QString const& title, Qt::DockWidgetArea)
-{
-	m_pThis->append(tr("New dock widget request %1.").arg(title));
-}
-
-void CConsole::XApplication::RemoveDockWidget(QWidget*)
-{
-	m_pThis->append(tr("Remove dock widget request."));
+		CallFunction<ILogger>(ILogger::InfoFunctor("Console widget closing."));
+	}
 }
 
 void CConsole::OnClear()
@@ -170,9 +80,15 @@ void CConsole::OnExecute()
 
 }
 
+CConsole* CConsole::instance()
+{
+	return s_pInstance == nullptr ? s_pInstance = new CConsole() : s_pInstance;
+}
+
 extern "C" CONSOLE_EXPORT void LoadPlugin(QMenuBar* pMenuBar)
 {
-	CConsole* pInstance = new CConsole();
+	CConsole* pInstance = CConsole::instance();
+
 	if (pMenuBar == nullptr)
 		return;
 
@@ -198,4 +114,45 @@ extern "C" CONSOLE_EXPORT void LoadPlugin(QMenuBar* pMenuBar)
 	QMenu* pMenu = pMenuBar->addMenu("Console");
 	pMenu->addAction("Clear console", pInstance, SLOT(OnClear()));
 	pMenu->addAction("Execute command", pInstance, SLOT(OnExecute()));
+}
+
+extern "C" CONSOLE_EXPORT void UnloadPlugin(QMenuBar* pMenuBar)
+{
+	CallFunction<IApplication>(IApplication::RemoveDockWidgetFunctor(CConsole::instance()));
+	delete CConsole::instance();
+	CConsole::s_pInstance = nullptr;
+
+	if (pMenuBar == nullptr)
+		return;
+
+	QList<QMenu*> menuList = pMenuBar->findChildren<QMenu*>();
+	QMenu* viewMenu = nullptr;
+	for (QMenu* pMenu : menuList)
+	{
+		if (pMenu->title() == "Console")
+		{
+			delete pMenu;
+			continue;
+		}
+
+		if (pMenu->title() != "View")
+			continue;
+
+		viewMenu = pMenu;
+	}
+
+	if (viewMenu == nullptr)
+		viewMenu = pMenuBar->addMenu("View");
+
+	QList<QAction*> actionList = viewMenu->findChildren<QAction*>();
+	for (QAction* pAction : actionList)
+	{
+		if (pAction->text() == "Console")
+		{
+			delete pAction;
+			break;
+		}
+	}
+	if (viewMenu->findChildren<QAction*>().empty())
+		delete viewMenu;
 }

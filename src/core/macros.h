@@ -14,12 +14,11 @@ public: \
 		m_pThis = (__class__*)((unsigned long long)this - (unsigned long long)(&((__class__*)0)->m_x##__interface__)); \
 		GetCore()->RegisterInterface(this); \
 	} \
+	~X##__interface__() \
+	{ GetCore()->UnregisterInterface(this); } \
 	operator __class__##*() {return m_pThis;}
 #define REGISTER_INTERFACE_END(__interface__) \
-} m_x##__interface__; \
-public: \
-operator X##__interface__() {return m_x##__interface__;} \
-operator X##__interface__##*() {return &m_x##__interface__;}
+} m_x##__interface__;
 
 #define DECLARE_MANAGER(__dll_key__) \
 public: \

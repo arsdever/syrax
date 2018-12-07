@@ -1,7 +1,6 @@
 #pragma once
 
-#include <interfaces.h>
-#include <macros.h>
+#include <core.h>
 #include <QWidget>
 #include <QFile>
 
@@ -20,6 +19,8 @@ public:
 	QString GetFileName() const;
 	QString GetFilePath() const;
 
+	void SetFilePath(QString const& strPath);
+
 	QPlainTextEdit* GetCoreWidget() { return m_pCore; }
 	bool IsValid() const { return m_bIsValid; }
 	bool IsUnsaved() const { return m_bUnsaved; }
@@ -32,6 +33,7 @@ public:
 
 signals:
 	void TitleChanged();
+	void PathChanged();
 
 public slots:
 	void OnChange();

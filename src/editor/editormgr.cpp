@@ -1,11 +1,11 @@
 #include "editormgr.h"
 
 #include <tabwidget.h>
-#include <manipulators.h>
 
 #include <QPlainTextEdit>
+#include <QFileDialog>
 
-CEditorManager* CEditorManager::s_pGlobalInstance = nullptr;
+CEditorManager* CEditorManager::s_pInstance = nullptr;
 
 CEditorManager::CEditorManager(QObject* pParent)
 	: QObject(pParent)
@@ -138,7 +138,6 @@ void CEditorManager::XFileManipulator::Open(QStringList const& strPaths)
 
 		m_pThis->SetCurrentEditor(editor);
 	}
-	//m_pThis->SetCurrentEditor();
 }
 
 void CEditorManager::XFileManipulator::SaveAll()
@@ -222,7 +221,15 @@ void CEditorManager::XFileManipulator::Save(QString const&)
 
 void CEditorManager::XFileManipulator::SaveAs()
 {
+	QString path = QFileDialog::getSaveFileName(nullptr, "Save as...");
+	if (path == "")
+		return;
 
+	CEditor* pEditor = m_pThis->GetCurrentEditor();
+	pEditor->SetFilePath(path);
+	pEditor->Save();
+	m_pThis->m_pTabWidget->setTabToolTip(m_pThis->GetCurrentEditorIndex(), pEditor->GetFilePath());
+	m_pThis->m_pTabWidget->setTabText(m_pThis->GetCurrentEditorIndex(), pEditor->GetFilePath());
 }
 
 void CEditorManager::XFileManipulator::New()
@@ -248,9 +255,9 @@ void CEditorManager::XFileManipulator::New()
 	connect(pNew, SIGNAL(TitleUpdated()), m_pThis, SLOT(OnTitleUpdated()));
 }
 
-CEditorManager* CEditorManager::GlobalInstance()
+CEditorManager* CEditorManager::instance()
 {
-	return s_pGlobalInstance == nullptr ? s_pGlobalInstance = new CEditorManager(GetCore()) : s_pGlobalInstance;
+	return s_pInstance == nullptr ? s_pInstance = new CEditorManager(GetCore()) : s_pInstance;
 }
 
 void CEditorManager::OnClose(int nIndex)
@@ -261,6 +268,10 @@ void CEditorManager::OnClose(int nIndex)
 void CEditorManager::OnCurrentChanged(int nIndex)
 {
 	m_nCurrentEditor = nIndex;
+	if(nIndex >= 0)
+		CallFunction<ILogger>(ILogger::InfoFunctor(NumberSuffix(nIndex + 1) + " tab selected"));
+	else
+		CallFunction<ILogger>(ILogger::InfoFunctor("There's no running tab"));
 }
 
 void CEditorManager::OnTitleUpdated()
@@ -268,9 +279,4 @@ void CEditorManager::OnTitleUpdated()
 	qint32 idx = m_arrUntitledIndexes.indexOf(sender());
 	if (idx != -1)
 		m_arrUntitledIndexes[idx] = nullptr;
-}
-
-extern "C" EDITOR_EXPORT void LoadPlugin()
-{
-	CEditorManager::GlobalInstance();
 }

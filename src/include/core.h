@@ -1,1 +1,5 @@
 #include "../core/core.h"
+#include "../core/interfaces.h"
+#include "../core/macros.h"
+#include "../core/manipulators.h"
+#include "../core/typedef.h"

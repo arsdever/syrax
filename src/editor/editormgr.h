@@ -2,8 +2,7 @@
 
 #include "editor_global.h"
 
-#include <interfaces.h>
-#include <macros.h>
+#include <core.h>
 #include <editor.h>
 
 #include <QObject>
@@ -49,7 +48,7 @@ public:
 	int GetTabIndex(CEditor* pEditor) const;
 	int GetTabIndex(QPlainTextEdit* pEditor) const;
 
-	static CEditorManager* GlobalInstance();
+	static CEditorManager* instance();
 
 signals:
 	void CurrentEditorChanged(int);
@@ -65,5 +64,5 @@ private:
 	QVector<void*> m_arrUntitledIndexes;
 	QVector<void*>::iterator m_itLastUntitled;
 	QTabWidget* m_pTabWidget;
-	static CEditorManager* s_pGlobalInstance;
+	static CEditorManager* s_pInstance;
 };

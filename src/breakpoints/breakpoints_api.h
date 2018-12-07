@@ -1,7 +1,6 @@
 #pragma once
 
-#include <interfaces.h>
-#include <macros.h>
+#include <core.h>
 
 class IBreakpoints : public IUnknown
 {
